@@ -7,6 +7,8 @@ import sys
 sys.path.insert(0, "FIt-SNE/") 
 from fast_tsne import fast_tsne
 
+import time
+
 
 class TreeSNE:
 
@@ -26,6 +28,9 @@ class TreeSNE:
     
     def fit(self):
 
+        times = []
+
+        start = time.time()
         self.fits[0] = fast_tsne(self.data, 
                     map_dims = self.map_dims, 
                     perplexity = self.perplexity, 
@@ -33,9 +38,13 @@ class TreeSNE:
                     df = self.r**0, 
                     late_exag_coeff=12
                     )
+        end = time.time()
+        times.append(end-start)
+        print(f'Time: {end-start}')
         
         for i in range(1, self.levels + 1):
             print(i)
+            start = time.time()
             self.fits[i] = fast_tsne(self.data, 
                                 map_dims = self.map_dims, 
                                 perplexity = self.perplexity**(self.r**i), 
@@ -44,6 +53,11 @@ class TreeSNE:
                                 late_exag_coeff=12,
                                 search_k = 150 * int(self.perplexity**(self.r**i))
                                 )
+            end = time.time()
+            times.append(end-start)
+            print(f'Time: {end-start}')
+
+        self.fit_times = times
             
     def visualize(self,
                   fits = None,
